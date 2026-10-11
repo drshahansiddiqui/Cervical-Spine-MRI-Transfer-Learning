@@ -1,9 +1,5 @@
 # Transfer Learning for Multi-Label Multi-Class Classification of Cervical Spine Disorders on MRI
 
-Source code accompanying the article:
-
-> Rehman, U., Farhan, S., & Siddiqui, S. Y. *Transfer Learning for Multi-Label Multi-Class Classification of Cervical Spine Disorders on Magnetic Resonance Imaging.* Submitted to PeerJ Computer Science, 2026.
-
 ---
 
 ## 1. Description
@@ -45,15 +41,15 @@ The framework is evaluated in four diagnostic settings covering nine tasks:
 
 | Category | Patients | Label instances (slices) | Used in reported results |
 |----------|----------|--------------------------|--------------------------|
-| Healthy (no disease label) | 18 | 432 | Yes (control class) |
+| Healthy | 18 | 432 | Yes |
 | Disc bulging | 41 | 984 | Part B combinations only |
 | Myelopathy | 4 | 96 | Yes |
 | Cord edema | 4 | 96 | Yes |
 | Disc herniation | 4 | 96 | Yes |
-| Stenosis | 1 | 24 | No (too few samples) |
-| Scoliotic deformity | 1 | 24 | No (too few samples) |
-| Osteophytosis | 1 | 24 | No (too few samples) |
-| Spondylodiscitis | 1 | 24 | No (too few samples) |
+| Stenosis | 1 | 24 | No |
+| Scoliotic deformity | 1 | 24 | No |
+| Osteophytosis | 1 | 24 | No |
+| Spondylodiscitis | 1 | 24 | No |
 
 A patient can have more than one diagnosis, so the disease rows add up to more than 61 patients.
 
@@ -178,8 +174,6 @@ The GPU is used only for the one-time ResNet50/VGG16 feature extraction in Step 
 7. **Threshold tuning (binary tasks only):** τ* is swept over [0.05, 0.95] on validation data. Multi-class tasks use the argmax.
 8. **Testing:** the selected model and τ* are applied once to the held-out test subset.
 
-**Limitation:** the split is made at the image level, not the patient level, so slices from the same patient can appear in both the training and test subsets. Each of the retained disease categories comes from only four patients, so the reported metrics are optimistic compared with a patient-grouped evaluation. Patient IDs are tracked, and the number of distinct test patients is reported for every task.
-
 ### Evaluation method
 - **Held-out testing:** every reported figure comes from the 20% test subset, which was used neither for training nor for model or threshold selection.
 - **Baseline check:** each test accuracy is compared with the majority-class baseline of its task.
@@ -214,19 +208,32 @@ For multi-class tasks, precision, recall, F1 and AUC are **macro-averaged**, so 
 
 ---
 
-## 7. Citations
+## 7. Conclusions
 
-**Article:**
-```
-Rehman, U., Farhan, S., & Siddiqui, S. Y. (2026). Transfer Learning for Multi-Label
-Multi-Class Classification of Cervical Spine Disorders on Magnetic Resonance Imaging.
-PeerJ Computer Science (under review).
-```
+- A frozen ResNet50 + VGG16 feature-fusion framework with class-balanced classifier screening and validation-tuned thresholds discriminates cervical spine disorders reliably across four increasingly demanding diagnostic settings.
+- Held-out accuracy reaches 96.88% on the multi-label binary tasks and 93.40% on single-disease binary screening. It holds at 92.45% and 86.67% on the four-class and six-class settings, with AUC between 0.851 and 0.979.
+- The validation-tuned thresholds (0.11–0.53) depart substantially from the default 0.50 in several tasks. Reporting the operating point together with class-wise metrics therefore matters as much as the architecture itself.
+- Broad diagnostic scope (nine tasks, multi-label and multi-class) and class-sensitive, threshold-aware evaluation can be achieved together within a lightweight transfer-learning pipeline that needs no fine-tuning.
+
+---
+
+## 8. Limitations
+
+- **Image-level split:** slices from the same patient can appear in both the training and test subsets, so the reported metrics are optimistic compared with a patient-grouped evaluation. Patient IDs are tracked, and the number of distinct test patients is reported for every task.
+- **Few patients per disease:** each retained disease category (myelopathy, cord edema, disc herniation) comes from only four patients, which limits how well the results generalize.
+- **Excluded categories:** stenosis, scoliotic deformity, osteophytosis and spondylodiscitis have only one patient (24 slices) each, too few for reliable per-class estimates, so they are not part of the reported results.
+- **Patient-level labels:** each patient's diagnosis is assigned to all of that patient's slices, including slices where the finding may not be visible, which introduces label noise.
+- **Single-center, retrospective data:** all images come from one local cohort. Generalization to other scanners, protocols and institutions has not been tested.
+- **No external or prospective validation:** the framework must be validated on independent cohorts, and prospectively, before any clinical use.
+
+---
+
+## 9. Citations
 
 **Code:**
 ```
-drshahansiddiqui. (2026). drshahansiddiqui/Cervical-Spine-MRI-Transfer-Learning: First Release (Version 1). Zenodo.
-https://doi.org/10.5281/zenodo.23296894
+Rehman, U., & Siddiqui, S. Y. (2026). drshahansiddiqui/Cervical-Spine-MRI-Transfer-Learning:
+First Release (v1.1) (Version v1.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.23297698
 GitHub: https://github.com/drshahansiddiqui/Cervical-Spine-MRI-Transfer-Learning
 ```
 
@@ -237,17 +244,9 @@ for Multi Label Multi Class Classification of Degenerative and Structural Disord
 Zenodo. https://doi.org/10.5281/zenodo.23297455
 ```
 
-**Pretrained backbones:**
-- He, K., Zhang, X., Ren, S., & Sun, J. (2016). Deep residual learning for image recognition. *CVPR*, 770–778.
-- Simonyan, K., & Zisserman, A. (2015). Very deep convolutional networks for large-scale image recognition. *ICLR*.
-
 ---
 
-## 8. License & Contribution Guidelines
+## 10. License
 
 - **Code:** MIT License; see `LICENSE`.
 - **Dataset:** distributed separately on Zenodo under the CC BY 4.0 license.
-- **Contributions:** bug reports and suggestions are welcome through GitHub Issues. Please open an issue describing the change before submitting a pull request.
-
-## Contact
-Saima Farhan (corresponding author), Department of Computer Science, Lahore College for Women University, Lahore 54500, Pakistan. saima.farhan@lcwu.edu.pk
