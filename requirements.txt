@@ -1,0 +1,10 @@
+# Experiments were run on Google Colab (T4 GPU runtime) with TensorFlow 2.20.0.
+# The other versions are those checked on the same Colab machine type.
+tensorflow==2.20.0
+numpy==2.1.3
+pandas==2.2.3
+scikit-learn==1.6.1
+matplotlib==3.10.0
+opencv-python-headless==4.14.0.*
+Pillow==11.3.0
+openpyxl==3.1.5
