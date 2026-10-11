@@ -8,7 +8,7 @@ Source code accompanying the article:
 
 ## 1. Description
 
-This project classifies cervical spine disorders on sagittal magnetic resonance imaging (MRI) with a transfer-learning feature-fusion framework:
+This project classifies cervical spine disorders on magnetic resonance imaging (MRI) with a transfer-learning feature-fusion framework:
 
 1. Each MRI slice is preprocessed: intensity windowing, background crop, denoising, square padding, 224 × 224 resize, and grayscale → RGB.
 2. Frozen ImageNet-pretrained **ResNet50** (2,048-d) and **VGG16** (512-d) extract global-average-pooled features. These are concatenated into a **2,560-d fused vector**.
@@ -32,14 +32,14 @@ The framework is evaluated in four diagnostic settings covering nine tasks:
 | Item | Details |
 |------|---------|
 | Name | Cervical Spine MRI Dataset (multi-label) |
-| Repository | figshare |
-| DOI | https://doi.org/10.6084/m9.figshare.33314520 |
-| Origin | Locally curated, retrospectively collected clinical MRI studies, de-identified before release (patients are identified only by numbers 1–61) |
+| Repository | Zenodo |
+| DOI | https://doi.org/10.5281/zenodo.23297455 |
+| Origin | Locally curated, retrospectively collected clinical MRI studies, de-identified before release (patients are identified only by numeric IDs between 1 and 63; IDs 5 and 55 are not used) |
 | Ethics approval | Research Ethics Institutional Review Board, Lahore College for Women University (Certificate No. ORIC/LCWU/238). The requirement for patient consent was waived because the data are retrospective and de-identified. |
-| Modality | Sagittal cervical spine MRI, provided as 8-bit JPEG slices |
+| Modality | Cervical spine MRI (sagittal and axial slices), provided as 8-bit 192 × 192 JPEG images with no embedded metadata |
 | Size | 1,464 slices from 61 patients (24 slices per patient) |
 | Annotation | Patient-level multi-label diagnosis assigned to every slice of that patient; healthy controls carry no disease label |
-| License | [[e.g., CC BY 4.0, as set on figshare]] |
+| License | Creative Commons Attribution 4.0 International (CC BY 4.0) |
 
 **Patients and label instances per category:**
 
@@ -66,7 +66,7 @@ MyDrive/CervicalSpine/processed/
 │   ├── ...
 │   └── 1_sl023.jpg
 ├── 2/
-└── ... 61/
+└── ... 63/        (61 patient folders)
 ```
 
 `manifest.csv` has one row per slice. A copy is also in `data/manifest.csv` in this repository.
@@ -74,7 +74,7 @@ MyDrive/CervicalSpine/processed/
 | Column | Meaning |
 |--------|---------|
 | `path` | Image path in Google Colab (`/content/drive/MyDrive/CervicalSpine/processed/<id>/<id>_slNNN.jpg`) |
-| `patient_id` | De-identified patient number (1–61) |
+| `patient_id` | De-identified patient number |
 | `is_normal` | 1 = healthy control |
 | `Disc Buldging`, `Myleopathy`, `Stenosis`, `Cord Edma`, `Scoliotic Deformity`, `Disc Herniation`, `Osteophytosis`, `Spondylodiscitis` | 0/1 disease labels. The column names keep the original spellings used in the code. |
 
@@ -86,7 +86,7 @@ MyDrive/CervicalSpine/processed/
 |------|---------|-----------------------------------------------|
 | `01_preprocessing_and_feature_extraction.ipynb` | **Step 1.** Records the computing environment, loads the manifest, preprocesses and caches all 1,464 slices, and extracts the fused ResNet50 + VGG16 features | `dual_eval_output/prep_cache/cached_manifest.csv`, `dual_eval_output/prep_cache/images/`, `dual_eval_output/feature_cache/concat_<hash>.npz` (1,464 × 2,560) |
 | `02_classification_and_results.ipynb` | **Step 2.** 2a screens all eight categories; 2b runs the nine reported tasks (Table 3); 2c generates the article figures and tables; 2d (optional) produces full-dataset confusion matrices for visualization only | `dual_eval_output_v50_improved_existing_cache/`, `dual_eval_output_v51_selected_reportable_classes/`, `FINAL_CODE_SIDE_ARTIFACTS_V52/`, `FULL_DATASET_CONFUSION_MATRICES_V51/` |
-| `data/manifest.csv` | Labels and patient IDs for all slices (same file as in the figshare dataset) | |
+| `data/manifest.csv` | Labels and patient IDs for all slices (same file as in the Zenodo dataset) | |
 | `requirements.txt` | Python dependencies | |
 | `LICENSE` | MIT license | |
 
@@ -133,7 +133,7 @@ The GPU is used only for the one-time ResNet50/VGG16 feature extraction in Step 
 
 ## 5. Usage Instructions
 
-1. **Download the dataset** from figshare: https://doi.org/10.6084/m9.figshare.33314520
+1. **Download the dataset** from Zenodo (`cervical_spine_mri_dataset.zip`) and unzip it: https://doi.org/10.5281/zenodo.23297455
 2. **Copy it to Google Drive** so the images and manifest are at `MyDrive/CervicalSpine/processed/` (see the layout in Section 2).
 3. **Run Step 1.** Open `01_preprocessing_and_feature_extraction.ipynb` in Google Colab, select *Runtime → Change runtime type → T4 GPU*, then click *Runtime → Run all*. When Colab asks, allow access to Google Drive.
 4. **Run Step 2.** Open `02_classification_and_results.ipynb` and click *Runtime → Run all*. No GPU is needed.
@@ -220,20 +220,21 @@ For multi-class tasks, precision, recall, F1 and AUC are **macro-averaged**, so 
 ```
 Rehman, U., Farhan, S., & Siddiqui, S. Y. (2026). Transfer Learning for Multi-Label
 Multi-Class Classification of Cervical Spine Disorders on Magnetic Resonance Imaging.
-PeerJ Computer Science. [[DOI when available]]
+PeerJ Computer Science (under review).
 ```
 
 **Code:**
 ```
 drshahansiddiqui. (2026). drshahansiddiqui/Cervical-Spine-MRI-Transfer-Learning: First Release (Version 1). Zenodo.
-https://doi.org/10.5281/zenodo.[[xxxxxxx]]
+https://doi.org/10.5281/zenodo.23296894
 GitHub: https://github.com/drshahansiddiqui/Cervical-Spine-MRI-Transfer-Learning
 ```
 
 **Dataset:**
 ```
-[[Dataset authors]]. (2026). [[Dataset title as shown on figshare]]. figshare.
-https://doi.org/10.6084/m9.figshare.33314520
+Siddiqui, S. Y., & Rehman, U. (2026). A Multi-Label Annotated Cervical Spine MRI Dataset
+for Multi Label Multi Class Classification of Degenerative and Structural Disorders [Dataset].
+Zenodo. https://doi.org/10.5281/zenodo.23297455
 ```
 
 **Pretrained backbones:**
@@ -245,7 +246,7 @@ https://doi.org/10.6084/m9.figshare.33314520
 ## 8. License & Contribution Guidelines
 
 - **Code:** MIT License; see `LICENSE`.
-- **Dataset:** distributed separately on figshare under its own license ([[license]]).
+- **Dataset:** distributed separately on Zenodo under the CC BY 4.0 license.
 - **Contributions:** bug reports and suggestions are welcome through GitHub Issues. Please open an issue describing the change before submitting a pull request.
 
 ## Contact
