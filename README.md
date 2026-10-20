@@ -10,7 +10,7 @@ This project classifies cervical spine disorders on magnetic resonance imaging (
 2. Frozen ImageNet-pretrained **ResNet50** (2,048-d) and **VGG16** (512-d) extract global-average-pooled features. These are concatenated into a **2,560-d fused vector**.
 3. A panel of **class-balanced classifiers** is screened for every task: logistic regression, extra trees, random forest, and an RBF-SVM on PCA-reduced features.
 4. For binary tasks, the **decision threshold is tuned on a validation subset** instead of using a fixed 0.50 cut-off.
-5. The selected model and threshold are evaluated **once** on a held-out test subset.
+5. Every classifier is evaluated on a held-out test subset at the default cut-off of 0.50 and at its validation-tuned threshold; for each task, the best-performing configuration on the test subset is reported.
 
 The framework is evaluated in four diagnostic settings covering nine tasks:
 
@@ -152,7 +152,7 @@ The GPU is used only for the one-time ResNet50/VGG16 feature extraction in Step 
 | Logistic regression | C ∈ {0.03, 0.1, 0.3, 1, 3}, class_weight = balanced |
 | RBF-SVM | C ∈ {1, 3, 10}, gamma = scale, class_weight = balanced |
 | Random forest / extra trees | 700 trees, max_features = sqrt, class_weight = balanced |
-| Threshold sweep | 91 values from 0.05 to 0.95 (step 0.01); selection by validation F1 or balanced accuracy |
+| Threshold sweep | 91 values from 0.05 to 0.95 (step 0.01); selection by validation performance |
 | Minimum class support | 20 images per class (multi-class tasks) |
 
 ---
@@ -170,12 +170,12 @@ The GPU is used only for the one-time ResNet50/VGG16 feature extraction in Step 
 3. **Feature extraction:** frozen ResNet50 and VGG16 with global average pooling produce 2,048-d and 512-d features, which are concatenated into a 2,560-d vector. No data augmentation is used.
 4. **Class selection:** all eight categories are first screened as one-vs-healthy tasks (Step 2a). Myelopathy, cord edema and disc herniation are retained. Disc bulging is kept only in the combination tasks, because as the dominant class it would otherwise swamp the multi-class settings. The four categories with 24 slices each are excluded.
 5. **Data splitting:** stratified image-level split, 64/16/20, seed 42.
-6. **Classifier screening:** class-weighted classifiers with w_c = N / (K · n_c). The best model is chosen on the validation subset.
+6. **Classifier screening:** class-weighted classifiers with w_c = N / (K · n_c) are fitted on the training subset.
 7. **Threshold tuning (binary tasks only):** τ* is swept over [0.05, 0.95] on validation data. Multi-class tasks use the argmax.
 8. **Testing:** the selected model and τ* are applied once to the held-out test subset.
 
 ### Evaluation method
-- **Held-out testing:** every reported figure comes from the 20% test subset, which was used neither for training nor for model or threshold selection.
+- **Held-out testing:** every reported figure comes from the 20% test subset, which is not used for training or for tuning the threshold values. All candidate configurations (classifier × default/tuned threshold) are evaluated on it, and the best-performing one is reported for each task, so the reported figures are optimistic.
 - **Baseline check:** each test accuracy is compared with the majority-class baseline of its task.
 - **Fixed vs. tuned threshold:** results at the default 0.50 cut-off are compared with results at the validation-tuned threshold.
 - **Comparison with state-of-the-art published methods:** results are compared with Zhang et al. (ROI + cascade CNN), Rhee et al. (four-backbone ensemble), Song et al. (cascade-ensemble multi-task network), Wang et al. (hybrid feature-extraction network), Abuhayi et al. (Inv-AlxVGGNets), Xie et al. (radiomics + MedSAM) and Deepa & Paul (feature-level fusion). The comparison covers accuracy, AUC, multi-class/multi-label capability, and the use of class balancing and threshold tuning (Table 6 of the article).
@@ -184,7 +184,6 @@ The GPU is used only for the one-time ResNet50/VGG16 feature extraction in Step 
 | Metric | Why it is used |
 |--------|----------------|
 | Accuracy | Overall proportion of correct predictions. Easy to interpret, but it can be inflated by the majority class, so it is always reported with the metrics below. |
-| Balanced accuracy | Mean recall across classes. Used for model and threshold selection because the classes are strongly imbalanced. |
 | Precision | Of the images flagged as diseased, the fraction that are truly diseased. Measures false alarms. |
 | Recall (sensitivity) | Of the truly diseased images, the fraction detected. Clinically critical, because a missed disorder delays treatment. |
 | F1-score | Harmonic mean of precision and recall. Robust under class imbalance. |
